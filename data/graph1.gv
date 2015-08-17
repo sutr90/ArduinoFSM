@@ -1,0 +1,64 @@
+digraph G {
+splines=true;
+sep="+10,10";
+nodesep=0.6;
+
+
+date->temp[label=3];
+date->time[label=1];
+temp->date[label=2];
+
+temp->time[label=1];
+time->date[label=2];
+time->temp[label=3];
+
+
+/*begin setup */
+time->setup [label=power];
+temp->setup [label=power];
+date->setup [label=power];
+setup->setDate [label=2];
+setup->setTime [label=1];
+setTime->setHours [label=null];
+setHours->hoursUp [label=up];
+hoursUp->setHours [label=null];
+
+setHours->hoursDown [label=down];
+hoursDown->setHours [label=null];
+
+
+setMinutes->minutesUp [label=up];
+minutesUp->setMinutes [label=null];
+setMinutes->minutesDown [label=down];
+minutesDown->setMinutes [label=null];
+setMinutes->time[label=return];
+
+setDate->setDay[label=null];
+
+setDay->setMonth [label=return];
+setMonth->setYear [label=return];
+setYear->date[label=return];
+setHours->setMinutes [label=return];
+
+setDay->dayUp [label=up];
+dayUp->setDay [label=null];
+setDay->dayDown [label=down];
+dayDown->setDay [label=null];
+
+setMonth->monthUp [label=up];
+monthUp->setMonth [label=null];
+setMonth->monthDown [label=down];
+monthDown->setMonth [label=null];
+
+
+setYear->yearUp[label=up];
+yearUp->setYear[label=null];
+setYear->yearDown[label=down];
+yearDown->setYear[label=null];
+
+/* end setup */
+
+{rank=same; date; time; temp}
+{rank=same; setDate; setTime}
+{rank=same; setHours; setMinutes; setDay; setMonth; setYear}
+}

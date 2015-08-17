@@ -1,0 +1,4 @@
+digraph G {
+S1->S2[label=E1];
+S2->S1[label=E2];
+}
