@@ -55,12 +55,13 @@ def create_poll():
 
 
 def create_actions(states):
+    # TODO actions for timed intervals need to set next interval and next action according to diagram
+    # time on edge mean time for leaving the source state
     actions_str = ""
     for s in states:
         actions_str += "void action{}(){{\n".format(s)
         actions_str += "\t/* TODO: add action for state {} */\n".format(s)
         actions_str += "}\n"
-
     return actions_str
 
 
