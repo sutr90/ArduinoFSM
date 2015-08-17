@@ -1,4 +1,5 @@
 digraph G {
-S1->S2[label=E1];
-S2->S1[label=E2];
+rankdir=LR;
+S1->S2[label=t500];
+S2->S1[label=t500];
 }

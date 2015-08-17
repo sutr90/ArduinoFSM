@@ -2,7 +2,7 @@ import collections
 import pydot_ng as pydot
 from fsmPygen import *
 
-graph = pydot.graph_from_dot_file('data/graph1.gv')
+graph = pydot.graph_from_dot_file('data/graph2.gv')
 edges = graph.get_edges()
 
 # state prefix
@@ -59,6 +59,9 @@ def create_file(states, events, table):
     cfile = create_events(events) + "\n"
     cfile += create_states(states) + "\n"
     cfile += create_fsm_table(table) + "\n"
+
+    cfile += 'unsigned long currentMillis, previousMillis = 0, interval;\n\n'
+
     cfile += create_poll() + "\n"
 
     actions = [s[len(sp):] for s in states]

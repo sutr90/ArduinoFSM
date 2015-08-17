@@ -4,7 +4,7 @@ def create_events(events):
         evt_str += "{}, ".format(e)
 
     evt_str += "} Event;\n"
-    evt_str += "Event currentEvent;\n"
+    evt_str += "Event currentEvent, lastEvent;\n"
     return evt_str
 
 
@@ -47,9 +47,10 @@ def create_fsm_table(table):
 
 
 def create_poll():
-    poll_str = "void pollEvents() {\n"
-    poll_str += "\t/* TODO: update currentEvent */\n"
-    poll_str += "}\n"
+    poll_str = 'void pollEvents() {\n'
+    poll_str += '\tlastEvent = currentEvent;\n'
+    poll_str += '\t/* TODO: update currentEvent */\n'
+    poll_str += '}\n'
     return poll_str
 
 
@@ -89,8 +90,14 @@ def create_setup(start):
 def create_loop():
     loop_str = "void loop() {\n"
     loop_str += "\tpollEvents();\n"
-    loop_str += "\tcurrentState = (State) fsmTable[currentState][currentEvent];\n"
-    loop_str += "\tevalState();\n"
-    loop_str += "}\n"
+    loop_str += "\tif (lastEvent != currentEvent) {\n\t\tinterval = 0;\n\t}\n"
+    loop_str += '\tcurrentMillis = millis();\n'
+
+    loop_str += '\tif (currentMillis - previousMillis > interval) {\n'
+    loop_str += '\t\tpreviousMillis = currentMillis;\n'
+    loop_str += '\t\tcurrentState = (State) fsmTable[currentState][currentEvent];\n'
+
+    loop_str += "\t\tevalState();\n"
+    loop_str += "\t}\n}\n"
 
     return loop_str
