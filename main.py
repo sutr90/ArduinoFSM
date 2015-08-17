@@ -2,7 +2,7 @@ import collections
 import pydot_ng as pydot
 from fsmPygen import *
 
-graph = pydot.graph_from_dot_file('C:\Users\VF\Desktop\graph1.gv')
+graph = pydot.graph_from_dot_file('data/graph1.gv')
 edges = graph.get_edges()
 
 # state prefix
