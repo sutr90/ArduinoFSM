@@ -38,11 +38,6 @@ def generate_state_table(states, edges):
     return d
 
 
-def pretty(d, indent=0):
-    for key, value in d.iteritems():
-        print '\t' * indent + str(key) + '\t' * (indent + 1) + str(value)
-
-
 def create_file(states, events, table):
     cfile = create_events(events) + "\n"
     cfile += create_states(states) + "\n"
@@ -64,9 +59,9 @@ def main():
     s, e = parse_data(dot_edges)
 
     t = generate_state_table(s, e)
-    # pretty(t)
 
-    print create_file(s, e, t)
+    with open('test.c', 'w') as f:
+        f.write(create_file(s, e, t))
 
 
 if __name__ == '__main__':
