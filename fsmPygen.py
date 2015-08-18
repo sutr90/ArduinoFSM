@@ -5,7 +5,7 @@ def create_events(events):
         event_names.add(en.label)
 
     evt_str = 'typedef enum {'
-    for e in event_names:
+    for e in sorted(event_names):
         evt_str += 'evt_{}, '.format(e)
 
     evt_str += 'evt_none} Event;\n'
@@ -15,7 +15,7 @@ def create_events(events):
 
 def create_states(states):
     state_str = 'typedef enum {'
-    for s in states:
+    for s in sorted(states, key=lambda x: x.name):
         state_str += 'st_{}, '.format(s.name)
 
     state_str += '} State;\n'
@@ -36,13 +36,13 @@ def create_fsm_table(table):
 
     fsm_str += '\t/*'
 
-    for e in events:
+    for e in sorted(events):
         fsm_str += '{:>{}}, '.format('evt_' + e, col_width)
 
     fsm_str += '*/\n'
-    for s in states:
+    for s in sorted(states, key=lambda x: x.name):
         fsm_str += '\t{ '
-        for e in events:
+        for e in sorted(events):
             fsm_str += '{:>{}}, '.format('st_' + table[s][e].name, col_width)
         fsm_str += '}},/* {} */\n'.format(s.name)
 
