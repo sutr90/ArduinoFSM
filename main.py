@@ -1,8 +1,9 @@
 import collections
 import pydot_ng as pydot
 from fsmPygen import *
+from fsmClasses import *
 
-graph = pydot.graph_from_dot_file('data/graph2.gv')
+graph = pydot.graph_from_dot_file('data/graph1.gv')
 edges = graph.get_edges()
 
 # state prefix
@@ -11,6 +12,20 @@ sp = 'st_'
 ep = 'evt_'
 # null event
 enull = ep + 'null'
+
+
+def parse_data(dot_edges):
+    states = {}
+
+    for e in dot_edges:
+        s, d, l = e.get_source(), e.get_destination(), e.get_label()
+
+        start = states[s] = states.get(s, State(s))
+        end = states[d] = states.get(d, State(d))
+
+        start.add_edge(Edge(start, end, l))
+
+    return states
 
 
 def extract_state_names(edges_p):
