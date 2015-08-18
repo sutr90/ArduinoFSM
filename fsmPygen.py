@@ -1,7 +1,3 @@
-from cv2 import calcOpticalFlowPyrLK
-from numpy.ma.core import _minimum_operation
-
-
 def create_events(events):
     event_names = set()
 
@@ -98,6 +94,7 @@ def create_eval_state(states):
 
 def create_setup(start):
     setup_str = "void setup(){\n"
+    setup_str += 'interval = 0;'
     setup_str += "\tcurrentState = st_{};\n".format(start.name)
     setup_str += '\tcurrentEvent = evt_none;\n'
     setup_str += "}\n"
@@ -108,7 +105,6 @@ def create_setup(start):
 def create_loop():
     loop_str = "void loop() {\n"
     loop_str += "\tpollEvents();\n"
-    loop_str += "\tif (lastEvent != currentEvent) {\n\t\tinterval = 0;\n\t}\n"
     loop_str += '\tcurrentMillis = millis();\n'
 
     loop_str += '\tif (currentMillis - previousMillis > interval) {\n'
