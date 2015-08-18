@@ -6,6 +6,9 @@ class State(object):
     def add_edge(self, edge):
         self.edges.append(edge)
 
+    def __str__(self):
+        return 'State({})'.format(self.name)
+
 
 class Edge(object):
     def __init__(self, start, end, label):
@@ -20,3 +23,6 @@ class Edge(object):
             return m.groups()[0]
         else:
             return 0
+
+    def __str__(self):
+        return 'Edge({}->{}, {})'.format(self.start, self.end, self.label)
