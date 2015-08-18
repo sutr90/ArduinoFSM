@@ -9,6 +9,9 @@ class State(object):
     def __str__(self):
         return 'State({})'.format(self.name)
 
+    def __repr__(self):
+        return self.__str__()
+
 
 class Edge(object):
     def __init__(self, start, end, label):

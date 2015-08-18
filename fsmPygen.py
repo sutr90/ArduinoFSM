@@ -12,7 +12,7 @@ def create_events(events):
     for e in event_names:
         evt_str += 'evt_{}, '.format(e)
 
-    evt_str += '} Event;\n'
+    evt_str += 'evt_none} Event;\n'
     evt_str += 'Event currentEvent, lastEvent;\n'
     return evt_str
 
@@ -27,8 +27,10 @@ def create_states(states):
     return state_str
 
 
-def create_fsm_table(states, events, table):
-    col_width = max(max([len(s.name) for s in states]), max([len(e.label) for e in events]))
+def create_fsm_table(table):
+    states = table.keys()
+    events = table.values()[0].keys()
+    col_width = max(max([len(s.name) for s in states]), max([len(e) for e in events]))
     col_width += 4  # length of prefix
 
     s_count = len(states)
@@ -39,7 +41,7 @@ def create_fsm_table(states, events, table):
     fsm_str += '\t/*'
 
     for e in events:
-        fsm_str += '{:>{}}, '.format('evt_' + e.label, col_width)
+        fsm_str += '{:>{}}, '.format('evt_' + e, col_width)
 
     fsm_str += '*/\n'
     for s in states:
@@ -57,13 +59,12 @@ def create_poll():
     poll_str = 'void pollEvents() {\n'
     poll_str += '\tlastEvent = currentEvent;\n'
     poll_str += '\t/* TODO: update currentEvent */\n'
+    poll_str += '\tcurrentEvent = evt_none;\n'
     poll_str += '}\n'
     return poll_str
 
 
 def create_actions(states):
-    # TODO actions for timed intervals need to set next interval and next action according to diagram
-    # time on edge mean time for leaving the source state
     actions_str = ""
     for s in states:
         actions_str += "void action_{}(){{\n".format(s.name)
@@ -98,6 +99,7 @@ def create_eval_state(states):
 def create_setup(start):
     setup_str = "void setup(){\n"
     setup_str += "\tcurrentState = {};\n".format(start.name)
+    setup_str += '\tcurrentEvent = evt_none;\n'
     setup_str += "}\n"
 
     return setup_str
@@ -111,7 +113,10 @@ def create_loop():
 
     loop_str += '\tif (currentMillis - previousMillis > interval) {\n'
     loop_str += '\t\tpreviousMillis = currentMillis;\n'
-    loop_str += '\t\tcurrentState = (State) fsmTable[currentState][currentEvent];\n'
+
+    loop_str += '\t\tif(currentEvent != evt_none){\n'
+    loop_str += '\t\t\tcurrentState = (State) fsmTable[currentState][currentEvent];\n'
+    loop_str += '\t\t}\n'
 
     loop_str += "\t\tevalState();\n"
     loop_str += "\t}\n}\n"

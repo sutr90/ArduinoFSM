@@ -21,19 +21,19 @@ def parse_data(edges_p):
         start.add_edge(edge)
         edges.append(edge)
 
-    edges.append(Edge(None, None, 'null'))
     return states.values(), edges
 
 
 def generate_state_table(states, edges):
     d = collections.defaultdict(dict)
+    en = set([e.label for e in edges])
 
     for s in states:
-        for e in edges:
+        for e in en:
             d[s][e] = s
 
     for e in edges:
-        d[e.start][e] = e.end
+        d[e.start][e.label] = e.end
 
     return d
 
@@ -46,7 +46,7 @@ def pretty(d, indent=0):
 def create_file(states, events, table):
     cfile = create_events(events) + "\n"
     cfile += create_states(states) + "\n"
-    cfile += create_fsm_table(states, events, table) + "\n"
+    cfile += create_fsm_table(table) + "\n"
 
     cfile += 'unsigned long currentMillis, previousMillis = 0, interval;\n\n'
 
