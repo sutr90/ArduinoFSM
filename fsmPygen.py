@@ -1,47 +1,54 @@
-def create_events(events):
-    evt_str = "typedef enum {"
-    for e in events:
-        evt_str += "{}, ".format(e)
+from cv2 import calcOpticalFlowPyrLK
+from numpy.ma.core import _minimum_operation
 
-    evt_str += "} Event;\n"
-    evt_str += "Event currentEvent, lastEvent;\n"
+
+def create_events(events):
+    event_names = set()
+
+    for en in events:
+        event_names.add(en.label)
+
+    evt_str = 'typedef enum {'
+    for e in event_names:
+        evt_str += 'evt_{}, '.format(e)
+
+    evt_str += '} Event;\n'
+    evt_str += 'Event currentEvent, lastEvent;\n'
     return evt_str
 
 
 def create_states(states):
-    state_str = "typedef enum {"
+    state_str = 'typedef enum {'
     for s in states:
-        state_str += "{}, ".format(s)
+        state_str += 'st_{}, '.format(s.name)
 
-    state_str += "} State;\n"
-    state_str += "State currentState;\n"
+    state_str += '} State;\n'
+    state_str += 'State currentState;\n'
     return state_str
 
 
-def create_fsm_table(table):
-    states = sorted(table.keys())
-    events = sorted(table.values()[0].keys())
-
-    col_width = max([len(max(row.values(), key=len)) for row in table.values()])
+def create_fsm_table(states, events, table):
+    col_width = max(max([len(s.name) for s in states]), max([len(e.label) for e in events]))
+    col_width += 4  # length of prefix
 
     s_count = len(states)
     e_count = len(events)
 
-    fsm_str = "int fsmTable[{0}][{1}] = {{\n".format(s_count, e_count)
+    fsm_str = 'int fsmTable[{0}][{1}] = {{\n'.format(s_count, e_count)
 
-    fsm_str += "\t/*"
+    fsm_str += '\t/*'
 
     for e in events:
-        fsm_str += "{:>{}}, ".format(e, col_width)
+        fsm_str += '{:>{}}, '.format('evt_' + e.label, col_width)
 
-    fsm_str += "*/\n"
+    fsm_str += '*/\n'
     for s in states:
-        fsm_str += "\t{ "
+        fsm_str += '\t{ '
         for e in events:
-            fsm_str += "{:>{}}, ".format(table[s][e], col_width)
-        fsm_str += "}},/* {} */\n".format(s)
+            fsm_str += '{:>{}}, '.format('st_' + table[s][e].name, col_width)
+        fsm_str += '}},/* {} */\n'.format(s.name)
 
-    fsm_str += "};\n"
+    fsm_str += '};\n'
 
     return fsm_str
 
@@ -59,19 +66,27 @@ def create_actions(states):
     # time on edge mean time for leaving the source state
     actions_str = ""
     for s in states:
-        actions_str += "void action{}(){{\n".format(s)
-        actions_str += "\t/* TODO: add action for state {} */\n".format(s)
+        actions_str += "void action_{}(){{\n".format(s.name)
+
+        min_edge = min(s.edges, key=lambda (edge): edge.get_timeout())
+        timeout = min_edge.get_timeout()
+
+        if not timeout == 0:
+            actions_str += '\tcurrentEvent = evt_{};\n'.format(min_edge.label)
+            actions_str += '\tinterval = {};\n'.format(timeout)
+
+        actions_str += "\t/* TODO: add action for state {} */\n".format(s.name)
         actions_str += "}\n"
     return actions_str
 
 
-def create_eval_state(states, prefix):
+def create_eval_state(states):
     eval_str = "void evalState(){\n"
     eval_str += "\tswitch(currentState){\n"
 
     for s in states:
-        eval_str += "\t\tcase {}:\n".format(prefix + s)
-        eval_str += "\t\t\taction{}();\n".format(s)
+        eval_str += "\t\tcase st_{}:\n".format(s.name)
+        eval_str += "\t\t\taction_{}();\n".format(s.name)
         eval_str += "\t\t\tbreak;\n"
 
     eval_str += "\t}\n"
@@ -82,7 +97,7 @@ def create_eval_state(states, prefix):
 
 def create_setup(start):
     setup_str = "void setup(){\n"
-    setup_str += "\tcurrentState = {};\n".format(start)
+    setup_str += "\tcurrentState = {};\n".format(start.name)
     setup_str += "}\n"
 
     return setup_str
