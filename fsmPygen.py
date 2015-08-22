@@ -1,3 +1,8 @@
+event_prefix = 'evt_'
+state_prefix = 'st_'
+event_none = 'none'
+
+
 def create_events(events):
     event_names = set()
 
@@ -6,9 +11,9 @@ def create_events(events):
 
     evt_str = 'typedef enum {'
     for e in sorted(event_names):
-        evt_str += 'evt_{}, '.format(e)
+        evt_str += '{}{}, '.format(event_prefix, e)
 
-    evt_str += 'evt_none} Event;\n'
+    evt_str += '{}{}}} Event;\n'.format(event_prefix, event_none)
     evt_str += 'Event currentEvent, lastEvent;\n'
     return evt_str
 
@@ -16,7 +21,7 @@ def create_events(events):
 def create_states(states):
     state_str = 'typedef enum {'
     for s in sorted(states, key=lambda x: x.name):
-        state_str += 'st_{}, '.format(s.name)
+        state_str += '{}{}, '.format(state_prefix, s.name)
 
     state_str += '} State;\n'
     state_str += 'State currentState;\n'
@@ -37,13 +42,13 @@ def create_fsm_table(table):
     fsm_str += '\t/*'
 
     for e in sorted(events):
-        fsm_str += '{:>{}}, '.format('evt_' + e, col_width)
+        fsm_str += '{:>{}}, '.format(event_prefix + e, col_width)
 
     fsm_str += '*/\n'
     for s in sorted(states, key=lambda x: x.name):
         fsm_str += '\t{ '
         for e in sorted(events):
-            fsm_str += '{:>{}}, '.format('st_' + table[s][e].name, col_width)
+            fsm_str += '{:>{}}, '.format(state_prefix + table[s][e].name, col_width)
         fsm_str += '}},/* {} */\n'.format(s.name)
 
     fsm_str += '};\n'
@@ -55,7 +60,7 @@ def create_poll():
     poll_str = 'void pollEvents() {\n'
     poll_str += '\tlastEvent = currentEvent;\n'
     poll_str += '\t/* TODO: update currentEvent */\n'
-    poll_str += '\tcurrentEvent = evt_none;\n'
+    poll_str += '\tcurrentEvent = {}{};\n'.format(event_prefix, event_none)
     poll_str += '}\n'
     return poll_str
 
@@ -69,7 +74,7 @@ def create_actions(states):
         timeout = min_edge.get_timeout()
 
         if not timeout == 0:
-            actions_str += '\tcurrentEvent = evt_{};\n'.format(min_edge.label)
+            actions_str += '\tcurrentEvent = {}{};\n'.format(event_prefix, min_edge.label)
             actions_str += '\tinterval = {};\n'.format(timeout)
 
         actions_str += "\t/* TODO: add action for state {} */\n".format(s.name)
@@ -82,7 +87,7 @@ def create_eval_state(states):
     eval_str += "\tswitch(currentState){\n"
 
     for s in states:
-        eval_str += "\t\tcase st_{}:\n".format(s.name)
+        eval_str += "\t\tcase {}{}:\n".format(state_prefix, s.name)
         eval_str += "\t\t\taction_{}();\n".format(s.name)
         eval_str += "\t\t\tbreak;\n"
 
@@ -95,8 +100,8 @@ def create_eval_state(states):
 def create_setup(start):
     setup_str = "void setup(){\n"
     setup_str += 'interval = 0;'
-    setup_str += "\tcurrentState = st_{};\n".format(start.name)
-    setup_str += '\tcurrentEvent = evt_none;\n'
+    setup_str += "\tcurrentState = {}{};\n".format(state_prefix, start.name)
+    setup_str += '\tcurrentEvent = {}{};\n'.format(event_prefix, event_none)
     setup_str += "}\n"
 
     return setup_str
@@ -110,7 +115,7 @@ def create_loop():
     loop_str += '\tif (currentMillis - previousMillis > interval) {\n'
     loop_str += '\t\tpreviousMillis = currentMillis;\n'
 
-    loop_str += '\t\tif(currentEvent != evt_none){\n'
+    loop_str += '\t\tif(currentEvent != {}{}){{\n'.format(event_prefix, event_none)
     loop_str += '\t\t\tcurrentState = (State) fsmTable[currentState][currentEvent];\n'
     loop_str += '\t\t}\n'
 
