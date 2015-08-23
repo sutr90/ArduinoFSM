@@ -13,7 +13,10 @@ def create_events(events):
     for e in sorted(event_names):
         evt_str += '{}{}, '.format(event_prefix, e)
 
-    evt_str += '{}{}}} Event;\n'.format(event_prefix, event_none)
+    if event_none not in event_names:
+        evt_str += '{}{}'.format(event_prefix, event_none)
+
+    evt_str += '} Event;\n'
     evt_str += 'Event currentEvent, lastEvent;\n'
     return evt_str
 
