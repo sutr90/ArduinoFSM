@@ -102,7 +102,7 @@ def create_eval_state(states):
 
 def create_setup(start):
     setup_str = "void setup(){\n"
-    setup_str += 'interval = 0;'
+    setup_str += '\tinterval = 0;\n'
     setup_str += "\tcurrentState = {}{};\n".format(state_prefix, start.name)
     setup_str += '\tcurrentEvent = {}{};\n'.format(event_prefix, event_none)
     setup_str += "}\n"
