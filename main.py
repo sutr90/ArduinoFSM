@@ -3,8 +3,9 @@ import pydot_ng as pydot
 from fsmPygen import *
 from fsmClasses import *
 
-graph = pydot.graph_from_dot_file('data/graph2.gv')
+graph = pydot.graph_from_dot_file('data/ledScroll.gv')
 dot_edges = graph.get_edges()
+class_name = 'FsmTest'
 
 
 def parse_data(edges_p):
@@ -38,21 +39,33 @@ def generate_state_table(states, edges):
     return d
 
 
-def create_file(states, events, table):
-    cfile = create_events(events) + "\n"
-    cfile += create_states(states) + "\n"
-    cfile += create_fsm_table(table) + "\n"
+# def create_file(states, events, table):
+#     cfile = create_events(events) + "\n"
+#     cfile += create_states(states) + "\n"
+#     cfile += create_fsm_table(table) + "\n"
+#
+#     cfile += 'unsigned long currentMillis, previousMillis = 0, interval;\n\n'
+#
+#     cfile += create_poll() + "\n"
+#
+#     cfile += create_actions(states) + "\n"
+#     cfile += create_eval_state(states) + "\n"
+#     cfile += create_setup(states[0]) + "\n"
+#     cfile += create_loop() + "\n"
+#
+#     return cfile
 
-    cfile += 'unsigned long currentMillis, previousMillis = 0, interval;\n\n'
 
-    cfile += create_poll() + "\n"
-
-    cfile += create_actions(states) + "\n"
-    cfile += create_eval_state(states) + "\n"
-    cfile += create_setup(states[0]) + "\n"
-    cfile += create_loop() + "\n"
-
-    return cfile
+def create_cpp_file(states, events, table):
+    cls_prefix = class_name + '::'
+    cpp_file = '#include "{}.hpp"\n\n'.format(class_name)
+    cpp_file += create_fsm_table(table, cls_prefix) + '\n'
+    cpp_file += create_poll(cls_prefix) + '\n'
+    cpp_file += create_actions(cls_prefix, states) + '\n'
+    cpp_file += create_eval_state(cls_prefix, states) + '\n'
+    cpp_file += create_setup(cls_prefix, states[0]) + '\n'
+    cpp_file += create_loop(cls_prefix) + '\n'
+    return cpp_file
 
 
 def main():
@@ -60,8 +73,8 @@ def main():
 
     t = generate_state_table(s, e)
 
-    with open('test.c', 'w') as f:
-        f.write(create_file(s, e, t))
+    with open('test.cpp', 'w') as f:
+        f.write(create_cpp_file(s, e, t))
 
 
 if __name__ == '__main__':

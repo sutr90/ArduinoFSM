@@ -31,7 +31,7 @@ def create_states(states):
     return state_str
 
 
-def create_fsm_table(table):
+def create_fsm_table(table, cls_prefix):
     states = table.keys()
     events = table.values()[0].keys()
     col_width = max(max([len(s.name) for s in states]), max([len(e) for e in events]))
@@ -40,7 +40,7 @@ def create_fsm_table(table):
     s_count = len(states)
     e_count = len(events)
 
-    fsm_str = 'int fsmTable[{0}][{1}] = {{\n'.format(s_count, e_count)
+    fsm_str = 'const {0}State {0}fsmTable[{1}][{2}] = {{\n'.format(cls_prefix, s_count, e_count)
 
     fsm_str += '\t/*'
 
@@ -59,8 +59,8 @@ def create_fsm_table(table):
     return fsm_str
 
 
-def create_poll():
-    poll_str = 'void pollEvents() {\n'
+def create_poll(cls_prefix):
+    poll_str = 'void {}pollEvents() {{\n'.format(cls_prefix)
     poll_str += '\tlastEvent = currentEvent;\n'
     poll_str += '\t/* TODO: update currentEvent */\n'
     poll_str += '\tcurrentEvent = {}{};\n'.format(event_prefix, event_none)
@@ -68,10 +68,10 @@ def create_poll():
     return poll_str
 
 
-def create_actions(states):
+def create_actions(cls_prefix, states):
     actions_str = ""
     for s in states:
-        actions_str += "void action_{}(){{\n".format(s.name)
+        actions_str += "void {}action_{}(){{\n".format(cls_prefix, s.name)
 
         min_edge = min(s.edges, key=lambda (edge): edge.get_timeout())
         timeout = min_edge.get_timeout()
@@ -85,34 +85,34 @@ def create_actions(states):
     return actions_str
 
 
-def create_eval_state(states):
-    eval_str = "void evalState(){\n"
-    eval_str += "\tswitch(currentState){\n"
+def create_eval_state(cls_prefix, states):
+    eval_str = 'void {}evalState(){{\n'.format(cls_prefix)
+    eval_str += '\tswitch(currentState){\n'
 
     for s in states:
-        eval_str += "\t\tcase {}{}:\n".format(state_prefix, s.name)
-        eval_str += "\t\t\taction_{}();\n".format(s.name)
-        eval_str += "\t\t\tbreak;\n"
+        eval_str += '\t\tcase {}{}:\n'.format(state_prefix, s.name)
+        eval_str += '\t\t\taction_{}();\n'.format(s.name)
+        eval_str += '\t\t\tbreak;\n'
 
-    eval_str += "\t}\n"
-    eval_str += "}\n"
+    eval_str += '\t}\n'
+    eval_str += '}\n'
 
     return eval_str
 
 
-def create_setup(start):
-    setup_str = "void setup(){\n"
-    setup_str += 'interval = 0;'
-    setup_str += "\tcurrentState = {}{};\n".format(state_prefix, start.name)
+def create_setup(cls_prefix, start):
+    setup_str = 'void {}{}(){{\n'.format(cls_prefix, cls_prefix[:-2])
+    setup_str += '\tinterval = 0;\n'
+    setup_str += '\tcurrentState = {}{};\n'.format(state_prefix, start.name)
     setup_str += '\tcurrentEvent = {}{};\n'.format(event_prefix, event_none)
-    setup_str += "}\n"
+    setup_str += '}\n'
 
     return setup_str
 
 
-def create_loop():
-    loop_str = "void loop() {\n"
-    loop_str += "\tpollEvents();\n"
+def create_loop(cls_prefix):
+    loop_str = 'void {}loop() {{\n'.format(cls_prefix)
+    loop_str += '\tpollEvents();\n'
     loop_str += '\tcurrentMillis = millis();\n'
 
     loop_str += '\tif (currentMillis - previousMillis > interval) {\n'
@@ -122,7 +122,7 @@ def create_loop():
     loop_str += '\t\t\tcurrentState = (State) fsmTable[currentState][currentEvent];\n'
     loop_str += '\t\t}\n'
 
-    loop_str += "\t\tevalState();\n"
-    loop_str += "\t}\n}\n"
+    loop_str += '\t\tevalState();\n'
+    loop_str += '\t}\n}\n'
 
     return loop_str
