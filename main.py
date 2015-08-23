@@ -6,6 +6,7 @@ from fsmClasses import *
 graph = pydot.graph_from_dot_file('data/ledScroll.gv')
 dot_edges = graph.get_edges()
 class_name = 'FsmTest'
+cls_prefix = class_name + '::'
 
 
 def parse_data(edges_p):
@@ -56,8 +57,7 @@ def generate_state_table(states, edges):
 #     return cfile
 
 
-def create_cpp_file(states, events, table):
-    cls_prefix = class_name + '::'
+def create_cpp_file(states, table):
     cpp_file = '#include "{}.hpp"\n\n'.format(class_name)
     cpp_file += create_fsm_table(table, cls_prefix) + '\n'
     cpp_file += create_poll(cls_prefix) + '\n'
@@ -68,14 +68,39 @@ def create_cpp_file(states, events, table):
     return cpp_file
 
 
+def create_hpp_file(events, states):
+    hpp_file = 'class {}{{\n'.format(class_name)
+    hpp_file += 'public:\n'
+    hpp_file += '\t{}();\n'.format(class_name)
+    hpp_file += '\tvoid loop();\n'
+    hpp_file += 'private:\n'
+
+    hpp_file += create_events(events) + '\n'
+    hpp_file += create_states(states) + '\n'
+
+    # -1 because it contains the evt_none which is not present in fsm table
+    hpp_file += '\tstatic const State fsmTable[{}][{}];\n'.format(len(states), len(events)-1)
+    hpp_file += '\tunsigned long currentMillis, previousMillis, interval;\n'
+    hpp_file += '\tvoid pollEvents();\n'
+
+    for s in states:
+        hpp_file += "\tvoid action_{}();\n".format(s.name)
+
+    hpp_file += '\tvoid evalState();\n'
+    hpp_file += '};\n'
+    return hpp_file
+
+
 def main():
     s, e = parse_data(dot_edges)
 
     t = generate_state_table(s, e)
 
-    with open('test.cpp', 'w') as f:
-        f.write(create_cpp_file(s, e, t))
+    with open('{}.cpp'.format(class_name), 'w') as f:
+        f.write(create_cpp_file(s, t))
 
+    with open('{}.hpp'.format(class_name), 'w') as f:
+        f.write(create_hpp_file(e, s))
 
 if __name__ == '__main__':
     main()

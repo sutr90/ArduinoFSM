@@ -9,7 +9,7 @@ def create_events(events):
     for en in events:
         event_names.add(en.label)
 
-    evt_str = 'typedef enum {'
+    evt_str = '\ttypedef enum {'
     for e in sorted(event_names):
         evt_str += '{}{}, '.format(event_prefix, e)
 
@@ -17,17 +17,17 @@ def create_events(events):
         evt_str += '{}{}'.format(event_prefix, event_none)
 
     evt_str += '} Event;\n'
-    evt_str += 'Event currentEvent, lastEvent;\n'
+    evt_str += '\tEvent currentEvent, lastEvent;\n'
     return evt_str
 
 
 def create_states(states):
-    state_str = 'typedef enum {'
+    state_str = '\ttypedef enum {'
     for s in sorted(states, key=lambda x: x.name):
         state_str += '{}{}, '.format(state_prefix, s.name)
 
     state_str += '} State;\n'
-    state_str += 'State currentState;\n'
+    state_str += '\tState currentState;\n'
     return state_str
 
 
@@ -101,8 +101,9 @@ def create_eval_state(cls_prefix, states):
 
 
 def create_setup(cls_prefix, start):
-    setup_str = 'void {}{}(){{\n'.format(cls_prefix, cls_prefix[:-2])
+    setup_str = '{}{}(){{\n'.format(cls_prefix, cls_prefix[:-2])
     setup_str += '\tinterval = 0;\n'
+    setup_str += '\tpreviousMillis = 0;\n'
     setup_str += '\tcurrentState = {}{};\n'.format(state_prefix, start.name)
     setup_str += '\tcurrentEvent = {}{};\n'.format(event_prefix, event_none)
     setup_str += '}\n'
