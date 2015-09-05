@@ -99,7 +99,7 @@ def main():
     with open('{}.cpp'.format(class_name), 'w') as f:
         f.write(create_cpp_file(s, t))
 
-    with open('{}.hpp'.format(class_name), 'w') as f:
+    with open('{}.h'.format(class_name), 'w') as f:
         f.write(create_hpp_file(e, s))
 
 if __name__ == '__main__':
