@@ -40,23 +40,6 @@ def generate_state_table(states, edges):
     return d
 
 
-# def create_file(states, events, table):
-#     cfile = create_events(events) + "\n"
-#     cfile += create_states(states) + "\n"
-#     cfile += create_fsm_table(table) + "\n"
-#
-#     cfile += 'unsigned long currentMillis, previousMillis = 0, interval;\n\n'
-#
-#     cfile += create_poll() + "\n"
-#
-#     cfile += create_actions(states) + "\n"
-#     cfile += create_eval_state(states) + "\n"
-#     cfile += create_setup(states[0]) + "\n"
-#     cfile += create_loop() + "\n"
-#
-#     return cfile
-
-
 def create_cpp_file(states, table):
     cpp_file = '#include "{}.hpp"\n\n'.format(class_name)
     cpp_file += create_fsm_table(table, cls_prefix) + '\n'
