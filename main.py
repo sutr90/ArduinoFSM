@@ -3,9 +3,9 @@ import pydot_ng as pydot
 from fsmPygen import *
 from fsmClasses import *
 
-graph = pydot.graph_from_dot_file('data/ledScroll.gv')
+graph = pydot.graph_from_dot_file('data/graph2.gv')
 dot_edges = graph.get_edges()
-class_name = 'FsmTest'
+class_name = 'fsBlink'
 cls_prefix = class_name + '::'
 
 
@@ -52,7 +52,7 @@ def create_cpp_file(states, table):
     return cpp_file
 
 
-def create_hpp_file(events, states):
+def create_header_file(events, states):
     hpp_file = 'class {}{{\n'.format(class_name)
     hpp_file += 'public:\n'
     hpp_file += '\t{}();\n'.format(class_name)
@@ -84,7 +84,7 @@ def main():
         f.write(create_cpp_file(s, t))
 
     with open('{}.h'.format(class_name), 'w') as f:
-        f.write(create_hpp_file(e, s))
+        f.write(create_header_file(e, s))
 
 if __name__ == '__main__':
     main()
