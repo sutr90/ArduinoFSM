@@ -41,7 +41,8 @@ def generate_state_table(states, edges):
 
 
 def create_cpp_file(states, table):
-    cpp_file = '#include "{}.hpp"\n\n'.format(class_name)
+    cpp_file = '#include "Arduino.h"\n\n'.format(class_name)
+    cpp_file += '#include "{}.h"\n\n'.format(class_name)
     cpp_file += create_fsm_table(table, cls_prefix) + '\n'
     cpp_file += create_poll(cls_prefix) + '\n'
     cpp_file += create_actions(cls_prefix, states) + '\n'
